@@ -10,7 +10,7 @@ Scaffold the full spec suite for a new project. Run this once at the start of a 
 - No `docs/specs/` directory exists yet
 - You have a product idea, brief, or description to work from
 
-Do not use this skill on existing projects. Use the `audit` skill instead.
+Do not use this skill on existing projects. Use the `ss-audit` skill instead.
 
 ---
 

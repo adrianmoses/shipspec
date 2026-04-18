@@ -12,9 +12,11 @@ Start with [`METHODOLOGY.md`](./METHODOLOGY.md) for the full vocabulary, documen
 
 ```
 METHODOLOGY.md           ← the canonical methodology
-shipspec-start/SKILL.md  ← scaffold repo-level docs for a new project
-shipspec-audit/SKILL.md  ← reverse-engineer repo-level docs for an existing project
-adr-generation/SKILL.md  ← draft an ADR from an accepted spec + approved plan
+ss-initialize/SKILL.md   ← scaffold repo-level docs for a new project
+ss-audit/SKILL.md        ← reverse-engineer repo-level docs for an existing project
+ss-fix/SKILL.md          ← investigate and record a bug fix
+ss-fix/spec/SKILL.md     ← write a feature spec for a planned roadmap item
+ss-decision/SKILL.md     ← draft a decision record for a completed feature
 docs/specs/              ← shipspec applied to itself (inferred)
 ```
 
@@ -35,19 +37,52 @@ This repo contains no runtime code. Every artifact is Markdown. Skills are instr
 
 | Situation | Path |
 |---|---|
-| New project, new feature | `shipspec-start` → spec.md → implement → decision.md |
-| Existing project, new feature | `shipspec-audit` → spec.md → implement → decision.md |
-| Bug fix | (`shipspec-audit`?) → fix → `bugs/{id}-{description}.md` |
+| New project, new feature | `ss-initialize` → spec.md → implement → decision.md |
+| Existing project, new feature | `ss-audit` → spec.md → implement → decision.md |
+| Bug fix | (`ss-audit`?) → fix → `bugs/{id}-{description}.md` |
 
 ---
 
 ## Using the skills
 
-The skills in this repo follow the Claude Code `SKILL.md` convention. To use one, copy the skill directory into your agent's skills path, then invoke it from your target project:
+The skills in this repo follow the Claude Code `SKILL.md` convention.
+
+### Install with the GitHub CLI (recommended)
+
+Requires `gh` version 2.90.0 or later. Install all skills into your user-scope Claude Code skills directory interactively — `gh` will prompt you to pick which skills to install:
 
 ```
-/shipspec-start      # new project
-/shipspec-audit      # existing project with no docs/specs/
+gh skill install adrianmoses/shipspec --agent claude-code --scope user
+```
+
+Other useful variants:
+
+```
+# Project scope (installs into ./.claude/skills/ in the current repo)
+gh skill install adrianmoses/shipspec --agent claude-code --scope project
+
+# Pin to a specific ref (tag, branch, or commit)
+gh skill install adrianmoses/shipspec@main --agent claude-code --scope user
+```
+
+### Install with the bundled script
+
+Alternatively, clone this repo and run the loader to copy every skill into `~/.claude/skills/`:
+
+```
+./load_claude_skills.sh
+```
+
+### Invoking the skills
+
+Once installed, invoke them from your target project:
+
+```
+/ss-initialize       # new project
+/ss-audit            # existing project with no docs/specs/
+/ss-fix              # bug fix
+/ss-spec             # feature spec for a planned roadmap item
+/ss-decision         # decision record after implementation
 ```
 
 Each skill is self-contained — it inlines its own templates and does not depend on another skill being loaded.

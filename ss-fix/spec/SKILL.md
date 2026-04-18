@@ -1,4 +1,4 @@
-# Skill: spec
+# Skill: ss-spec
 
 Generate a feature spec for a planned roadmap item. This is a thinking doc written before implementation begins. It captures why the feature exists, what it does, and how it will be built. The agent uses this as its primary input during implementation.
 
@@ -10,7 +10,7 @@ Generate a feature spec for a planned roadmap item. This is a thinking doc writt
 - You are about to begin implementation of a new feature
 - A feature needs to be re-specced due to significant scope change
 
-Do not use this skill for bug fixes. Use the `fix` skill instead.
+Do not use this skill for bug fixes. Use the `ss-fix` skill instead.
 
 ---
 
@@ -143,4 +143,4 @@ acceptance criteria.}
 
 1. Human reviews spec and sets status to `approved`
 2. Use the `implement` skill to execute against the spec
-3. After implementation, use the `decision` skill to produce the decision record
+3. After implementation, use the `ss-decision` skill to produce the decision record

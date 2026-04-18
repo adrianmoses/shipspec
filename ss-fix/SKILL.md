@@ -1,4 +1,4 @@
-# Skill: fix
+# Skill: ss-fix
 
 Generate a bug fix record for a confirmed bug. This is a single lightweight doc that combines investigation, scoping, and fix into one artifact. It begins with diagnosis and ends with a record of what changed and what tests were added.
 
@@ -10,7 +10,7 @@ Generate a bug fix record for a confirmed bug. This is a single lightweight doc 
 - An existing feature is behaving incorrectly
 - A regression has been introduced
 
-Do not use this skill for new features or planned changes. Use the `spec` skill instead.
+Do not use this skill for new features or planned changes. Use the `ss-spec` skill instead.
 
 ---
 

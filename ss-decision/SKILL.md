@@ -1,4 +1,4 @@
-# Skill: decision
+# Skill: ss-decision
 
 Generate a decision record for a completed feature. This is a record doc written after implementation. It captures the context that drove the work, alternatives that were considered, tradeoffs that were made, and the decisions that were reached. It is honest about where the implementation diverged from the spec and why.
 

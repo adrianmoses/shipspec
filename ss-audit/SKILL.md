@@ -1,6 +1,6 @@
 # Skill: ss-audit
 
-Reverse-engineer the spec suite for an existing project by reading the codebase. Output is the same three repo-level docs that `initialize` produces, but with status `inferred`. Once complete, the project is on the canonical shipspec path.
+Reverse-engineer the spec suite for an existing project by reading the codebase. Output is the same three repo-level docs that `ss-initialize` produces, but with status `inferred`. Once complete, the project is on the canonical shipspec path.
 
 ---
 
@@ -10,7 +10,7 @@ Reverse-engineer the spec suite for an existing project by reading the codebase.
 - A project was started without shipspec and needs to be brought onto the workflow
 - The codebase is not well understood and needs to be documented before a bug fix or new feature
 
-Do not use this skill on new projects. Use the `initialize` skill instead.
+Do not use this skill on new projects. Use the `ss-initialize` skill instead.
 
 ---
 
@@ -217,4 +217,4 @@ After audit:
 2. Set status to `approved` when confident in accuracy
 3. Decide whether gap findings warrant bug fixes or new feature specs
 4. For new features, create `docs/specs/{NNN}-{feature-name}/spec.md`
-5. For bug fixes, use the `fix` skill
+5. For bug fixes, use the `ss-fix` skill
