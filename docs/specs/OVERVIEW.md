@@ -5,7 +5,8 @@
 |---|---|
 | status | inferred |
 | created | 2026-04-17 |
-| inferred-from | METHODOLOGY.md, shipspec-start/SKILL.md, shipspec-audit/SKILL.md, adr-generation/SKILL.md, git log |
+| last-audited | 2026-04-18 |
+| inferred-from | METHODOLOGY.md, ss-initialize/SKILL.md, ss-audit/SKILL.md, ss-fix/SKILL.md, ss-fix/spec/SKILL.md, ss-decision/SKILL.md, README.md, load_claude_skills.sh, git log |
 
 ## Product Summary <!-- required -->
 
@@ -26,49 +27,58 @@ Give an AI agent a legible, load-bearing contract before it writes code, and a s
 - Not a runtime, framework, or library. No executable code ships in this repo.
 - Not a project-management tool — roadmap status is lightweight, not a replacement for issue trackers.
 - Not opinionated about language, framework, or test runner of the downstream project. Those are captured per-project in the generated OVERVIEW.
-- Not intended to be consumed as a packaged distribution (npm, PyPI, etc.); current distribution model appears to be "copy the skill files into your agent's skills directory."
+- Not a packaged distribution on npm/PyPI. Distribution is via `gh skill install` (GitHub CLI 2.90.0+) or the bundled `load_claude_skills.sh` loader.
 
 ## Tech Stack <!-- required -->
 
 - **Format:** Markdown only. Every artifact in this repo and every artifact the skills produce is `.md`.
-- **Skill format:** Plain `SKILL.md` files, one per skill directory. One skill (`adr-generation`) uses YAML frontmatter with `name` and `description`; the other two do not. See Audit Notes.
-- **Runtime:** None. Skills are instructions executed by an external AI agent harness (e.g. Claude Code).
+- **Skill format:** Plain `SKILL.md` files, one per skill directory. All current skills use the `# Skill: {name}` header convention; none use YAML frontmatter.
+- **Distribution:** `gh skill install adrianmoses/shipspec --agent claude-code --scope user` (primary), or `./load_claude_skills.sh` which copies every top-level `*/SKILL.md` directory into `~/.claude/skills/`.
+- **Runtime:** None. Skills are instructions executed by an external AI agent harness (Claude Code).
 - **Dependencies:** None. No package manifest (`package.json`, `pyproject.toml`, etc.) present.
 - **CI / build:** None present.
 
 ## Testing Suite <!-- required -->
 
-No automated tests exist in this repo. There is no test directory, test runner config, or CI configuration. Verification of skill correctness currently relies on a human running the skill against a project and judging the output. If test evidence is expected to be load-bearing per METHODOLOGY.md §Testing, a conformance harness for the skills themselves does not yet exist and may be a roadmap gap.
+No automated tests exist in this repo. There is no test directory, test runner config, or CI configuration. Verification of skill correctness currently relies on a human running the skill against a project and judging the output. If test evidence is expected to be load-bearing per METHODOLOGY.md §Testing, a conformance harness for the skills themselves does not yet exist and remains a roadmap gap.
 
 ## Open Questions <!-- optional -->
 
-- Is shipspec intended to be a packaged/versioned product, or a reference implementation others fork?
-- Should the skills themselves follow shipspec (i.e. does this repo eat its own dog food with specs and decision records under `docs/specs/`)? This audit is a first step in that direction.
+- Is shipspec intended to be a packaged/versioned product, or a reference implementation others fork? (`gh skill install` leans toward the former.)
+- Should the skills themselves follow shipspec (i.e. does this repo eat its own dog food with per-feature specs and decision records under `docs/specs/{NNN}-{feature}/`)? Still unanswered — only the three repo-level docs exist.
 
 ## Audit Notes <!-- inferred only -->
 
 ### Capabilities Observed
 
 - **Methodology doc** (`METHODOLOGY.md`): defines core philosophy, document hierarchy, four primary workflow paths (new/existing × feature/bug), utility operations, spec statuses, required/optional section markers, decision record discipline, and testing posture.
-- **Skill: shipspec-start**: scaffolds three repo-level docs (`OVERVIEW.md`, `ARCHITECTURE.md`, `ROADMAP.md`) for a new project from a product description + tech stack + testing approach.
-- **Skill: shipspec-audit**: reverse-engineers the same three docs for an existing project by reading code, marks status `inferred`, and appends an Audit Notes section. (This skill is what produced the document you are reading.)
-- **Skill: adr-generation**: drafts an Architecture Decision Record from an accepted spec and approved plan, leaving `[YOUR INPUT NEEDED]` blanks for developer-only fields (alternatives, tradeoffs, consequences), and outputs to `DECISIONS.md`.
+- **Skill: ss-initialize**: scaffolds three repo-level docs (`OVERVIEW.md`, `ARCHITECTURE.md`, `ROADMAP.md`) for a new project from a product description + tech stack + testing approach.
+- **Skill: ss-audit**: reverse-engineers the same three docs for an existing project by reading code, marks status `inferred`, and appends an Audit Notes section. (This skill is what produced the document you are reading.)
+- **Skill: ss-spec**: drafts a feature spec for a planned roadmap item. Currently lives nested at `ss-fix/spec/SKILL.md`.
+- **Skill: ss-fix**: generates a bug fix record combining investigation, scoping, and fix in one artifact. Writes to `bugs/{NNN}-{description}.md`.
+- **Skill: ss-decision**: drafts a decision record for a completed feature. Writes per-feature `decision.md` alongside the feature's `spec.md`, aligned with METHODOLOGY.md.
+- **Distribution:** `gh skill install adrianmoses/shipspec --agent claude-code --scope user` (gh 2.90.0+) installs skills interactively; `load_claude_skills.sh` is the fallback.
 
 ### Gaps and Inconsistencies
 
-- **Filename convention mismatch.** `METHODOLOGY.md` §Document Hierarchy lists repo-level docs as `00-overview.md`, `01-architecture.md`, `02-roadmap.md` (numeric prefix, lowercase). The `shipspec-start` and `shipspec-audit` skills create `OVERVIEW.md`, `ARCHITECTURE.md`, `ROADMAP.md` (no prefix, uppercase). `shipspec-audit/SKILL.md` further refers back to `00-overview.md` in its Audit Notes instructions. Pick one and align all three.
-- **Skill name mismatch.** METHODOLOGY.md references skills named `initialize`, `audit`, `fix`, `implement`, `revise-roadmap`, `revise-architecture`, `refactor`, `deprecate-feature`. The repo contains `shipspec-start`, `shipspec-audit`, `adr-generation`. Only two of the referenced skills have a corresponding implementation, and under different names.
-- **Missing skills.** Of the workflow paths described in METHODOLOGY.md, the following have no implementation: `implement` (core — executes a feature spec), `fix` (core — bug fix path), `revise-roadmap`, `revise-architecture`, `refactor`, `deprecate-feature`. The only two concrete skills that ship are the two scaffolding skills (start/audit) plus ADR drafting.
-- **adr-generation predates the methodology.** It produces entries appended to `DECISIONS.md`, not per-feature `decision.md` files under `docs/specs/{NNN}-{feature}/`. Its terminology ("ADR", "spec-enforcement skill", "plan") does not align with the methodology's terminology ("spec", "decision record"). Either the methodology's `decision.md` step needs a dedicated skill, or `adr-generation` needs to be refactored to fit.
-- **Removed skills.** `git log` shows that `comprehension-check/SKILL.md` and `spec-enforcement/SKILL.md` existed in the initial commit and were deleted in `ca7f91b update skills`. `adr-generation/SKILL.md` still references "the spec-enforcement skill" as an upstream input, which is now a dangling reference.
-- **Frontmatter inconsistency.** `adr-generation/SKILL.md` has YAML frontmatter with `name:` and `description:`. `shipspec-start/SKILL.md` and `shipspec-audit/SKILL.md` do not. If the agent harness uses frontmatter for skill discovery/triggering, the two newer skills may not be discoverable the same way.
-- **Typo.** `shipspec-start/SKILL.md` line 1: `# Skill: shispec-start` (missing `p` in "shipspec").
-- **No tests or conformance checks.** METHODOLOGY.md §Testing says "spec compliance is verified by tests, not by agent self-report," but the skills that produce specs have no harness that verifies they produced a conforming artifact. There is no schema or validator for the document templates.
-- **`docs/specs/` did not exist before this audit.** The project does not currently apply its own methodology to itself.
+- **Filename convention mismatch.** `METHODOLOGY.md` §Document Hierarchy lists repo-level docs as `00-overview.md`, `01-architecture.md`, `02-roadmap.md` (numeric prefix, lowercase). The `ss-initialize` and `ss-audit` skills create `OVERVIEW.md`, `ARCHITECTURE.md`, `ROADMAP.md` (no prefix, uppercase). Still unresolved — pick one and align all three.
+- **Skill name mismatch with methodology vocabulary.** METHODOLOGY.md references skills named `initialize`, `audit`, `fix`, `implement`, `revise-roadmap`, `revise-architecture`, `refactor`, `deprecate-feature`. The repo prefixes every skill with `ss-` (`ss-initialize`, `ss-audit`, `ss-fix`, `ss-spec`, `ss-decision`). The prefix is intentional shorthand for slash-command invocation; METHODOLOGY.md has not yet been updated to reflect it.
+- **Missing skills.** Of the workflow paths described in METHODOLOGY.md, the following still have no implementation: `implement` (core — executes a feature spec), `revise-roadmap`, `revise-architecture`, `refactor`, `deprecate-feature`.
+- **Nested skill layout.** `ss-spec` is located at `ss-fix/spec/SKILL.md` rather than at a top-level `ss-spec/`. `load_claude_skills.sh` only picks up top-level `*/SKILL.md` directories, so `ss-spec` is not installed by the loader. Either promote it to top-level or teach the loader to recurse.
+- **No tests or conformance checks.** METHODOLOGY.md §Testing says "spec compliance is verified by tests, not by agent self-report," but the skills that produce specs have no harness that verifies they produced a conforming artifact. No schema or validator for the document templates exists.
+- **This repo does not fully apply its own methodology.** Only the three repo-level docs exist under `docs/specs/`. No per-feature spec/decision pairs, no bug fix records, no maintenance records.
 
 ### Uncertain Areas
 
-- Intended distribution mechanism (copy/paste, git submodule, npm package, something else).
-- Whether the methodology is stable or still in active revision — the second commit heavily reworked the skill set, suggesting the shape is still moving.
-- Whether the target harness is Claude Code specifically, or AI coding agents in general. The skill file shape matches Claude Code's `SKILL.md` convention, but nothing in the repo pins this.
-- Whether `adr-generation` is deprecated in favor of an as-yet-unwritten `decision.md` skill, or whether both are expected to coexist.
+- Whether the nested `ss-fix/spec/` layout is intentional (e.g. "spec" is conceptually subordinate to a bug/feature entrypoint) or a holdover to be flattened.
+- Whether METHODOLOGY.md should be revised to document the `ss-*` naming convention, or whether the skills should drop the prefix in favor of the plain methodology names.
+- Whether the target harness is Claude Code specifically. The `gh skill install --agent claude-code` flag and the `load_claude_skills.sh → ~/.claude/skills/` path both point to Claude Code, but nothing in `METHODOLOGY.md` pins it.
+
+### Resolved Since 2026-04-17 Audit
+
+- Skill rename from `shipspec-start`/`shipspec-audit`/`adr-generation` → `ss-initialize`/`ss-audit`/`ss-decision`. The `ss-*` prefix is the canonical shorthand going forward.
+- `adr-generation` retired in favor of `ss-decision`, which produces per-feature `decision.md` aligned with METHODOLOGY.md (no more `DECISIONS.md`).
+- `ss-fix` skill (plus nested `ss-spec`) added, closing the bug-fix and feature-spec gaps from the prior audit.
+- Frontmatter inconsistency resolved by dropping YAML frontmatter everywhere; all skills now use the `# Skill: {name}` header.
+- Distribution mechanism settled on `gh skill install` with `load_claude_skills.sh` as fallback.
+- `shispec-start` typo removed with the rename.
