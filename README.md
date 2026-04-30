@@ -15,7 +15,8 @@ METHODOLOGY.md           ← the canonical methodology
 ss-initialize/SKILL.md   ← scaffold repo-level docs for a new project
 ss-audit/SKILL.md        ← reverse-engineer repo-level docs for an existing project
 ss-fix/SKILL.md          ← investigate and record a bug fix
-ss-fix/spec/SKILL.md     ← write a feature spec for a planned roadmap item
+ss-spec/SKILL.md         ← write a feature spec for a planned roadmap item
+ss-plan/SKILL.md         ← produce an implementation plan against an approved spec
 ss-decision/SKILL.md     ← draft a decision record for a completed feature
 docs/specs/              ← shipspec applied to itself (inferred)
 ```
@@ -37,8 +38,8 @@ This repo contains no runtime code. Every artifact is Markdown. Skills are instr
 
 | Situation | Path |
 |---|---|
-| New project, new feature | `ss-initialize` → spec.md → implement → decision.md |
-| Existing project, new feature | `ss-audit` → spec.md → implement → decision.md |
+| New project, new feature | `ss-initialize` → spec.md → `ss-plan` → implement → decision.md |
+| Existing project, new feature | `ss-audit` → spec.md → `ss-plan` → implement → decision.md |
 | Bug fix | (`ss-audit`?) → fix → `bugs/{id}-{description}.md` |
 
 ---
@@ -82,6 +83,7 @@ Once installed, invoke them from your target project:
 /ss-audit            # existing project with no docs/specs/
 /ss-fix              # bug fix
 /ss-spec             # feature spec for a planned roadmap item
+/ss-plan             # implementation plan against an approved spec
 /ss-decision         # decision record after implementation
 ```
 

@@ -142,5 +142,5 @@ acceptance criteria.}
 ## Next Steps
 
 1. Human reviews spec and sets status to `approved`
-2. Use the `implement` skill to execute against the spec
+2. Implement the feature against the spec
 3. After implementation, use the `decision` skill to produce the decision record
