@@ -40,11 +40,11 @@ Before producing a plan, confirm which spec is being implemented:
 
 ## Steps
 
-### 1. Switch to plan mode
+### 1. Enter plan mode
 
-If the harness exposes a plan mode (e.g. Claude Code's `ExitPlanMode` flow), enter it before producing the plan. Plan mode prevents accidental edits while the approach is being reasoned about and signals to the human that no code is being changed yet.
+Enter plan mode before producing the plan. In Claude Code, call the `EnterPlanMode` tool; in other harnesses, use the equivalent. Plan mode prevents accidental edits while the approach is being reasoned about and signals to the human that no code is being changed yet.
 
-If plan mode is not available, proceed by producing the plan as text and explicitly stating that no edits will be made until the human approves.
+If the harness does not expose a plan mode, proceed by producing the plan as text and explicitly stating that no edits will be made until the human approves.
 
 ### 2. Read the spec end-to-end
 
@@ -62,7 +62,7 @@ Use the template below. Keep it tight — this is a working document, not a deli
 
 ### 4. Hand off for approval
 
-Present the plan to the user. Do not begin implementation until the human approves the plan or redirects. If plan mode is active, exit it only after approval.
+Present the plan to the user via the plan-mode exit flow (in Claude Code, `ExitPlanMode` with the plan as the argument). Do not begin implementation until the human approves the plan or redirects.
 
 ---
 
