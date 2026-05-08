@@ -23,10 +23,7 @@ Do not use this skill for bug fixes. Use the `fix` skill instead.
 | Technical context | No | Relevant architecture constraints — pulled from `ARCHITECTURE.md` if not provided |
 | Additional guidance | No | Any human direction on approach, constraints, or priorities |
 
-Before writing, read:
-1. `docs/specs/OVERVIEW.md` — for consumer and product context
-2. `docs/specs/ARCHITECTURE.md` — for technical constraints
-3. `docs/specs/ROADMAP.md` — for sequencing and dependencies
+The repo-level docs (`OVERVIEW.md`, `ARCHITECTURE.md`, `ROADMAP.md`) are read as part of Step 1 below.
 
 ---
 
@@ -38,6 +35,64 @@ docs/specs/{NNN}-{feature-name}/
 ```
 
 Update `ROADMAP.md` feature status from `planned` to `in-progress`.
+
+---
+
+## Steps
+
+The spec is a thinking doc, and the thinking happens *with* the human, not in the agent's head alone. Run discovery before drafting so the spec reflects shared intent, not the agent's best guess.
+
+### 1. Read the repo-level docs
+
+Before any dialogue, read in full:
+
+- `docs/specs/OVERVIEW.md` — consumer and product context
+- `docs/specs/ARCHITECTURE.md` — technical constraints
+- `docs/specs/ROADMAP.md` — the feature's place in sequence and any neighbors that depend on it or block it
+
+The discovery dialogue is grounded in these docs. Any question whose answer is already there should not be asked.
+
+### 2. Run the discovery dialogue
+
+**Frame.** State in one line what is about to happen: *"I'll ask up to a few questions to ground the spec, then propose a draft for you to react to before I write the file."*
+
+**Probe.** Ask the questions below, in order, with a hard cap of 5 total. Skip any whose answer is already in OVERVIEW / ARCHITECTURE / ROADMAP or earlier conversation context — surface the inferred answer in the reflect-back instead of asking. Aim for the smallest set of questions that resolves real ambiguity, not a checklist.
+
+1. **Consumer alignment.** OVERVIEW names consumer `{X}`. Does this feature serve them, or a different / narrower consumer? If different, who?
+2. **Why, in one sentence.** Propose a draft Why: *"This feature exists because {…}."* Confirm or correct.
+3. **Approach options.** Sketch the two most plausible approaches: A `{one-line sketch}` vs B `{one-line sketch}`. Name the central tradeoff between them. Ask which fits, or whether a third option is on the table.
+4. **Confidence and falsification.** State current confidence (`High | Medium | Low`) and *why*. If not High, ask what would falsify the approach — the validation step that should run before full implementation.
+5. **Non-goals worth naming.** Ask which adjacent capabilities the human explicitly does *not* want this feature to grow into. Surface any obvious-but-implicit ones for confirmation.
+
+If a question's answer is fully determined by context (≈80%+ confidence), do not ask it — note in the reflect-back that you inferred it and from where.
+
+**Reflect.** When probing is done, present a single batched summary in the shape of the spec's required sections:
+
+```
+Here's what I heard (✓ = your answer, • = inferred from {source}):
+
+- Consumer:    ✓ {…}
+- Why:         ✓ {…}
+- Approach:    ✓ {…}
+- Confidence:  ✓ {High | Medium | Low} — validate by {…}
+- Non-goals:   • {…}  (inferred from ROADMAP item 004)
+
+Anything to correct before I draft?
+```
+
+Wait for explicit approval or correction before proceeding. If the human redirects substantially, run another short pass — do not patch the reflect-back silently.
+
+### 3. Draft the spec
+
+Render the template (below) using the dialogue's outputs. Every required section must trace back to either an answer the human gave or an inference stated in the reflect-back. Do not introduce new claims at draft time that were not surfaced during dialogue.
+
+### 4. Hand off for review
+
+Present the drafted spec for the human to set status `draft` → `approved`. If they redirect substantially after seeing the draft, return to step 2 — do not patch the spec in place from a different mental model than the dialogue produced.
+
+### Opt-out: quick mode
+
+If the human invokes the skill with `--quick`, or explicitly asks to "just draft it," skip step 2's dialogue entirely. Read the repo-level docs, draft directly from context, and set `Confidence: Low` on any section where dialogue would have helped — with rationale naming what was assumed. This preserves the one-shot path for cases where the human already has the spec in their head.
 
 ---
 
@@ -129,7 +184,11 @@ acceptance criteria.}
 
 ## Completion Criteria
 
+- [ ] Repo-level docs were read in full before discovery began
+- [ ] Discovery dialogue ran (or `--quick` was explicitly invoked)
+- [ ] Reflect-back was presented and the human approved or corrected before drafting
 - [ ] All required sections populated
+- [ ] Every section traces back to a dialogue answer or a stated inference — no new claims introduced at draft time
 - [ ] Acceptance criteria written from consumer perspective
 - [ ] Confidence level set with rationale
 - [ ] If confidence is Medium or Low, validation steps are listed

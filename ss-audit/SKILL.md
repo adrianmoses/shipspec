@@ -72,11 +72,75 @@ If the codebase is large or unfamiliar, run a structured discovery audit before 
 - Missing error handling, missing tests, or untested paths
 - Hardcoded values that suggest unfinished abstraction
 
-Record findings in a `## Audit Notes` section appended to `00-overview.md`. These are not part of the canonical spec — they are inputs for the human to review.
+Record findings in a `## Audit Notes` section appended to `OVERVIEW.md`. These are not part of the canonical spec — they are inputs for the human to review.
 
 ---
 
-### 3. Create `docs/specs/OVERVIEW.md`
+### 3. Run the verification dialogue
+
+The findings from steps 1 and 2 are inferences from code. Before drafting, present them to the human for confirmation, correction, or explicit "leave as uncertain." This is the difference between an audit that captures reality and one that captures the agent's reading of code.
+
+**Frame.** State in one line what is about to happen: *"I've read the codebase and have inferences ready. I'll walk through what I see, you confirm or correct, then I draft the three files."*
+
+**Verify.** Present the prompts below in order, with a hard cap of 5 total. Each prompt is grounded in what was observed during steps 1 and 2 — do not ask open questions; ask the human to confirm, correct, or flag as still-uncertain. Fill in `{list}` / `{X}` from your observations before asking.
+
+1. **Capabilities.** Top capabilities seen from the code: `{list}`. Did I miss any? Are any of these actually deprecated or dead code?
+2. **Consumer.** Inferred consumer: `{X}` (based on `{API surface | UI | CLI | integration points}`). Right person? Other consumers — internal teams, downstream systems, agents — that the code doesn't make obvious?
+3. **Implicit non-goals.** Things this codebase does *not* do that I might have expected: `{list}`. Intentional non-goals, or accidental gaps?
+4. **Uncertain inferences.** Things I could not determine from code alone: `{list}`. Resolve any of these now, or leave as `[INFERRED: uncertain — please verify]`?
+5. **Tech stack and testing accuracy.** Tech stack from manifests: `{list}`. Anything missing, misleading, or planned to be removed? Test rigor observed: `{summary}` — does that reflect the team's actual posture, or is the test suite under-built?
+
+If the answer to any prompt is already obvious from a README, ADR, or earlier conversation context, do not ask — surface the inferred answer in the reflect-back instead.
+
+**Reflect.** Present a single batched summary in the shape of the three documents. Use three states explicitly: `✓` confirmed by the human, `•` inferred from code (acceptable), `?` uncertain (will be marked `[INFERRED: uncertain — please verify]` in the doc):
+
+```
+Here's what I'm about to write (✓ confirmed, • inferred from code, ? uncertain):
+
+OVERVIEW
+- Product summary:  • from README + entry points
+- Consumer:         ✓ {…}
+- Job to be done:   • from primary capability
+- Non-goals:        ✓ {…}
+- Tech stack:       • from {manifest}
+- Testing suite:    • from {test dir + CI config}
+- Audit notes:
+  - Capabilities:         ✓ {N} confirmed
+  - Gaps/inconsistencies: • {list}
+  - Uncertain areas:      ? {list}
+
+ARCHITECTURE
+- System overview:  • from entry points
+- Component map:    • from directory structure
+- Data flow:        • traced main path
+- External deps:    • from manifest + observed calls
+- Key constraints:  ? could not determine
+
+ROADMAP
+- Features: • {N} capabilities → `implemented` entries
+
+Anything to correct, or leave as inferred for now?
+```
+
+Wait for explicit approval or correction before drafting. Items still marked `?` after the dialogue carry forward into the docs as `[INFERRED: uncertain — please verify]` — they are not failures, they are honest signals to the human about where the audit ran out of evidence.
+
+### 4. Draft the three docs
+
+Render the templates below in order: `OVERVIEW.md`, `ARCHITECTURE.md`, then `ROADMAP.md`. Every section must trace back to either an observation from steps 1–2, a confirmation from step 3, or an explicit `[INFERRED: uncertain — please verify]` flag. Do not introduce new claims at draft time that were not surfaced during dialogue.
+
+### 5. Hand off for review
+
+Present the three drafted files. The human's job from here is to resolve remaining `[INFERRED: uncertain]` flags and decide whether status moves from `inferred` to `approved`, or whether observed gaps warrant follow-up bug fixes or feature specs.
+
+### Opt-out: quick mode
+
+If the human invokes the skill with `--quick`, or asks to "just write what you see," skip step 3's dialogue entirely. Draft directly from the code-reading passes, and surface uncertain items aggressively as `[INFERRED: uncertain — please verify]`. This is roughly the historical default for `ss-audit` — the verification dialogue is the upgrade. Quick mode is the right call when the human plans to do their own pass over the drafts.
+
+---
+
+## Templates
+
+### OVERVIEW.md
 
 Infer as much as possible from the codebase. Where intent cannot be determined from code, mark the field with `[INFERRED: uncertain — please verify]`.
 
@@ -128,7 +192,7 @@ Infer as much as possible from the codebase. Where intent cannot be determined f
 
 ---
 
-### 4. Create `docs/specs/ARCHITECTURE.md`
+### ARCHITECTURE.md
 
 ```markdown
 # Architecture
@@ -163,7 +227,7 @@ Infer as much as possible from the codebase. Where intent cannot be determined f
 
 ---
 
-### 5. Create `docs/specs/ROADMAP.md`
+### ROADMAP.md
 
 Infer features from the codebase. Each distinct capability observed in the discovery pass becomes a roadmap entry marked `implemented`. Unknown or partially implemented features are marked `in-progress`.
 
@@ -201,11 +265,15 @@ Infer features from the codebase. Each distinct capability observed in the disco
 ## Completion Criteria
 
 - [ ] Discovery pass complete before any writing began
+- [ ] Verification dialogue ran (or `--quick` was explicitly invoked)
+- [ ] Reflect-back was presented and the human confirmed, corrected, or accepted items as uncertain
+- [ ] Items confirmed by the human are no longer marked uncertain in the docs
+- [ ] Items still uncertain after dialogue are flagged `[INFERRED: uncertain — please verify]`
 - [ ] All three files exist in `docs/specs/`
 - [ ] All required sections populated or explicitly marked `[INFERRED: uncertain]`
 - [ ] Status set to `inferred` in all three files
 - [ ] `inferred-from` field lists the key files that drove each doc
-- [ ] Audit Notes section in `00-overview.md` captures gaps and uncertainties
+- [ ] Audit Notes section in `OVERVIEW.md` captures gaps and uncertainties
 
 ---
 

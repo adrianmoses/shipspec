@@ -16,7 +16,7 @@ Do not use this skill on existing projects. Use the `ss-audit` skill instead.
 
 ## Inputs
 
-Gather the following before proceeding. If any are missing, ask before generating.
+The discovery dialogue in Step 2 below collects these. They are listed here so the human knows what the conversation will cover.
 
 | Input | Required | Description |
 |---|---|---|
@@ -43,9 +43,73 @@ docs/specs/
 
 ## Steps
 
-### 1. Create `docs/specs/OVERVIEW.md`
+The repo-level docs are the foundation every other shipspec skill builds on. They are co-developed with the human, not agent-drafted-then-reviewed. Run discovery before drafting so the three files reflect shared intent.
 
-Use the template below. All required sections must be populated. Optional sections may be omitted with a one-line note.
+### 1. Read provided context
+
+If the human supplied a brief, README, design note, or any document describing the product, read it in full before opening dialogue. If the project directory already contains a `README.md`, an architecture sketch, or notes, read those too. If there is nothing to read, proceed straight to discovery — that is the common case for greenfield projects.
+
+### 2. Run the discovery dialogue
+
+**Frame.** State in one line what is about to happen: *"I'll ask up to a few questions to ground the three docs, then propose a draft for you to react to before I write the files."*
+
+**Probe.** Ask the questions below, in order, with a hard cap of 5 total. Skip any whose answer is already in the human's brief or earlier conversation context — surface the inferred answer in the reflect-back instead of asking. Aim for the smallest set of questions that resolves real ambiguity, not a checklist.
+
+1. **Consumer and job-to-be-done.** Describe the consumer and what they're hiring this product to do. Be specific — if the consumer is another system or agent, name it. What problem does it solve for them?
+2. **Non-goals.** What would make a user *stop* using this, or what jobs are you explicitly *not* doing? Naming what's out is often more clarifying than what's in.
+3. **Tech stack and constraints.** Languages, frameworks, infrastructure. Anything load-bearing or non-negotiable — compliance, latency, scale, deployment, license?
+4. **Testing posture.** What level of testing rigor is right for this product, and what tools fit? Decision records reference the testing suite as evidence — set the bar honestly.
+5. **Roadmap seed.** What features make up the first 3–6 months? Rough is fine; order matters more than completeness. An architecture sketch will be proposed in the reflect-back based on what's been said.
+
+If a question's answer is fully determined by context (≈80%+ confidence), do not ask it — note in the reflect-back that it was inferred, and from where.
+
+**Reflect.** When probing is done, present a single batched summary shaped like the three documents. The architecture section is mostly agent-proposed — the human's job here is to react, not to spec it from scratch:
+
+```
+Here's what I heard (✓ = your answer, • = inferred from {source}):
+
+OVERVIEW
+- Product summary:  ✓ {…}
+- Consumer:         ✓ {…}
+- Job to be done:   ✓ {…}
+- Non-goals:        ✓ {…}
+- Tech stack:       ✓ {…}
+- Testing suite:    ✓ {…}
+
+ARCHITECTURE (sketch — react to it)
+- System overview:  • {…}
+- Component map:    • {…}
+- Data flow:        • {…}
+- External deps:    • {…}
+- Key constraints:  ✓ {…}
+
+ROADMAP
+- Features (ordered): ✓ {…}
+
+Anything to correct before I draft the three files?
+```
+
+Wait for explicit approval or correction before proceeding. If the human substantially redirects on architecture, that is expected — it is the section they had least context to react to during probing, and the sketch's job is to surface the disagreement.
+
+### 3. Draft the three docs
+
+Render the templates below in order: `OVERVIEW.md`, `ARCHITECTURE.md`, then `ROADMAP.md`. Every section must trace back to either a dialogue answer or an inference stated in the reflect-back. Do not introduce new claims at draft time that were not surfaced during dialogue.
+
+### 4. Hand off for review
+
+Present the three drafted files for the human to review and set status `draft` → `approved`. If they redirect substantially after seeing the drafts, return to step 2 — do not patch the files in place from a different mental model than the dialogue produced.
+
+### Opt-out: quick mode
+
+If the human invokes the skill with `--quick`, or supplies a complete brief that already answers all five probe questions, skip step 2's dialogue entirely. Draft directly from context, and surface every ambiguity as either an `Open Questions` entry (OVERVIEW) or an `Open Decisions` entry (ARCHITECTURE) — naming what was assumed and what would resolve it. This preserves the one-shot path for humans who already have the project shape in their head.
+
+---
+
+## Templates
+
+### OVERVIEW.md
+
+All required sections must be populated. Optional sections may be omitted with a one-line note.
 
 ```markdown
 # Overview
@@ -88,7 +152,7 @@ test evidence in decision records references this.}
 
 ---
 
-### 2. Create `docs/specs/ARCHITECTURE.md`
+### ARCHITECTURE.md
 
 ```markdown
 # Architecture
@@ -127,7 +191,7 @@ when resolved.}
 
 ---
 
-### 3. Create `docs/specs/ROADMAP.md`
+### ROADMAP.md
 
 ```markdown
 # Roadmap
@@ -162,10 +226,14 @@ when resolved.}
 
 ## Completion Criteria
 
+- [ ] Discovery dialogue ran (or `--quick` was explicitly invoked)
+- [ ] Reflect-back was presented and the human approved or corrected before drafting
+- [ ] Architecture sketch was confirmed (since it is mostly inferred from tech stack and roadmap)
 - [ ] All three files exist in `docs/specs/`
 - [ ] All required sections populated in each file
+- [ ] Every section traces back to a dialogue answer or a stated inference — no new claims introduced at draft time
 - [ ] Status set to `draft` in all three
-- [ ] Roadmap includes at least one feature row if an initial feature list was provided
+- [ ] Roadmap includes at least one feature row if a feature list was discussed during dialogue
 
 ---
 
@@ -174,5 +242,6 @@ when resolved.}
 After initialization:
 
 1. Review all three docs and set status to `approved` when ready
-2. For each roadmap feature, create `docs/specs/{NNN}-{feature-name}/spec.md`
-3. Use the `implement` skill to execute against each spec
+2. For each roadmap feature, use the `ss-spec` skill to create `docs/specs/{NNN}-{feature-name}/spec.md`
+3. Use the `ss-plan` skill to plan implementation against each approved spec
+4. After implementation, use the `ss-decision` skill to record what was built and any spec divergence
